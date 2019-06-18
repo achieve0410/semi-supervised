@@ -36,39 +36,35 @@ def checkLineNum(list, limitNum, findNum):
     return False
 
 def divideData(trainOrTest):
-
     ## variables for array
     line_counter = 0
-    labeled_counter = 0
-    unlabeled_counter = 0
     compo_counter = 0
 
     rowLength = len(trainOrTest)
     colLength = len(trainOrTest[0])
 
-    if(trainOrTest == train_data):
-        ## set train data
-        # x_train = np.zeros( [rowLength, colLength-1] )
-        # y_train = np.zeros( [rowLength, 1] )
+    ## handling train data
+    if(trainOrTest == train_data):        
+        labeled_counter = 0
+        unlabeled_counter = 0
+        labeled_ratio = 0.05
 
-        labeled_x = np.zeros( [int(rowLength*0.05), colLength-1] )
-        labeled_y = np.zeros( [int(rowLength*0.05), 1] )
-        unlabeled_x = np.zeros( [int(rowLength*0.95), colLength-1] )
-        unlabeled_y = np.zeros( [int(rowLength*0.95), 1] )
+        labeled_x = np.zeros( [int(rowLength*labeled_ratio), colLength-1] )
+        labeled_y = np.zeros( [int(rowLength*labeled_ratio), 1] )
+        unlabeled_x = np.zeros( [int(rowLength*(1-labeled_ratio)), colLength-1] )
+        unlabeled_y = np.zeros( [int(rowLength*(1-labeled_ratio)), 1] )
 
         tempList = list(range(0, rowLength, 1))
         random.shuffle(tempList)
-        labeledList = tempList[0:int(rowLength*0.05)]
+        labeledList = tempList[0:int(rowLength*labeled_ratio)]
 
         while 1:
             data = trainOrTest
             if len(data)<=line_counter: break
 
-            if(checkLineNum(labeledList, int(rowLength*0.05), line_counter)): ## labeled_x, labeled_y
+            ## labeled_x, labeled_y
+            if(checkLineNum(labeledList, int(rowLength*labeled_ratio), line_counter)):
                 if compo_counter == len(data[0])-1:
-                    # y_train[line_counter][0] = int(data[line_counter][compo_counter])
-                    # line_counter += 1
-                    # compo_counter = 0
                     labeled_y[labeled_counter][0] = int(data[line_counter][compo_counter])
                     labeled_counter += 1
                     line_counter += 1
@@ -77,7 +73,8 @@ def divideData(trainOrTest):
                     labeled_x[labeled_counter][compo_counter] = int(data[line_counter][compo_counter])
                     compo_counter += 1
 
-            else: ## unlabeled_x, unlabeled_y
+            ## unlabeled_x, unlabeled_y
+            else:
                 if compo_counter == len(data[0])-1:
                     unlabeled_y[unlabeled_counter][0] = int(data[line_counter][compo_counter])
                     unlabeled_counter += 1
@@ -89,6 +86,7 @@ def divideData(trainOrTest):
 
         return labeled_x, labeled_y, unlabeled_x, unlabeled_y
 
+    ## handling test data
     else:
         ## set test data
         x_test = np.zeros( [rowLength, colLength] )
@@ -108,6 +106,29 @@ def divideData(trainOrTest):
 
         return x_test, y_test
 
+def calcError(groundTruth, predictValue):
+    se = 0
+    i=0
+    while 1:
+        if(i>=len(groundTruth)): break
+        se += math.sqrt(pow(groundTruth[i]-predictValue[i], 2))
+        i+=1
+    return se/len(groundTruth)
+
+def normalization(data):
+    column_counter = 0
+
+    while 1:
+        if(column_counter>=len(data[0])): break
+
+        if (int(data.max(axis=0)[column_counter]) != 0):
+            data[:,column_counter] = data[:,column_counter] / data.max(axis=0)[column_counter]
+        else:
+            data[:,column_counter] = data[:,column_counter] / 0.001
+        column_counter += 1
+
+    return  data
+
 
 ###### Train data #######
 
@@ -122,22 +143,22 @@ test_data = readCSVfile('modify_test_dataset.csv')
 x_test, y_test = divideData(test_data)
 
 
-## output
+## output ##
 
-print(len(labeled_x))         ## 73
-print(len(labeled_x[0]))      ## 25
-print(len(labeled_y))         ## 73
-print(len(labeled_y[0]))      ## 1
+# print(len(labeled_x))         ## 73
+# print(len(labeled_x[0]))      ## 25
+# print(len(labeled_y))         ## 73
+# print(len(labeled_y[0]))      ## 1
 
-print(len(unlabeled_x))       ## 1387
-print(len(unlabeled_x[0]))    ## 25
-print(len(unlabeled_y))       ## 1387
-print(len(unlabeled_y[0]))    ## 1
+# print(len(unlabeled_x))       ## 1387
+# print(len(unlabeled_x[0]))    ## 25
+# print(len(unlabeled_y))       ## 1387
+# print(len(unlabeled_y[0]))    ## 1
 
-print(len(x_test))          ## 1459
-print(len(x_test[0]))       ## 25
-print(len(y_test))          ## 1459
-print(len(y_test[0]))       ## 1
+# print(len(x_test))            ## 1459
+# print(len(x_test[0]))         ## 25
+# print(len(y_test))            ## 1459
+# print(len(y_test[0]))         ## 1
 
 
 #############################################################################################################################################################################
@@ -145,25 +166,22 @@ print(len(y_test[0]))       ## 1
 # pred = np.zeros( [len(test_data), 1] )
 # loss = np.zeros( [len(test_data), 1] )
 
-# ## reshape datasets
-# np.reshape(x_train, (-1, 1))
-# np.reshape(y_train, (1, -1))
+## reshape datasets
+np.reshape(labeled_x, (-1, 1))
+np.reshape(labeled_y, (-1, 1))
 
-# ## create and summary model
-# model = OLS(y_train, x_train)
-# y_pred = model.fit()
-# #print(y_pred.summary())
+norm_labeled_x = normalization(labeled_x)
+# print(norm_labeled_x)
 
-# ## predict the answer
-# pred = y_pred.predict(x_train)
+## create and summary model
+model = OLS(labeled_y, norm_labeled_x)
+y_pred = model.fit()
+# print(y_pred.summary())
 
-# ## calculate RSME
-# line_counter = 0
-# while 1:
-#     if len(data)<=line_counter: break
+## predict the answer
+pred = y_pred.predict(labeled_x)
 
-#     loss[line_counter][0] = abs( y_train[line_counter][0]-int(pred[line_counter]) )
-#     line_counter += 1
+## print erro
+error = calcError(labeled_y, pred)
+print(error)
 
-# RSME = math.sqrt( sum( pow(loss, 2) ) / len(y_train) )
-# print("RSME : ", RSME)
