@@ -129,6 +129,15 @@ def normalization(data):
 
     return  data
 
+def makearray(array):
+    retArray = np.zeros( [len(array), 1] )
+
+    i=0
+    while 1:
+        if(i>=len(array)): break
+        retArray[i,:]=array[i]
+        i+=1
+    return retArray
 
 ###### Train data #######
 
@@ -163,25 +172,55 @@ x_test, y_test = divideData(test_data)
 
 #############################################################################################################################################################################
 
-# pred = np.zeros( [len(test_data), 1] )
-# loss = np.zeros( [len(test_data), 1] )
-
-## reshape datasets
-np.reshape(labeled_x, (-1, 1))
-np.reshape(labeled_y, (-1, 1))
-
+## normalization
 norm_labeled_x = normalization(labeled_x)
-# print(norm_labeled_x)
 
 ## create and summary model
-model = OLS(labeled_y, norm_labeled_x)
-y_pred = model.fit()
-# print(y_pred.summary())
+bModel = OLS(labeled_y, norm_labeled_x)
+bPrediction = bModel.fit()
+# print(bPrediction.summary())
 
 ## predict the answer
-pred = y_pred.predict(labeled_x)
+bpred = bPrediction.predict(unlabeled_x)
+bpred_y = makearray(bpred)
 
-## print erro
-error = calcError(labeled_y, pred)
-print(error)
+## merge dataset
+new_labeled_x = np.vstack((labeled_x, unlabeled_x))
+new_labeled_y = np.vstack((labeled_y, bpred_y))
+
+
+
+## debug ##
+
+# print(labeled_x.shape)          ## 73, 25
+# print((unlabeled_x.shape))      ## 1387, 25
+# print((labeled_y.shape))        ## 73, 1
+# print((bpred_y.shape))           ## 1387, 1
+
+# print(new_labeled_x.shape)      ## 1460, 25
+# print(new_labeled_y.shape)      ## 1460, 1
+
+###########
+
+
+## normalization
+norm_new_labeled_x = normalization(new_labeled_x)
+
+## create and summary new model
+aModel = OLS(new_labeled_y, norm_new_labeled_x)
+aPrediction = aModel.fit()
+# print(aPrediction.summary())
+
+## predict the answer using two models and compare result
+apred = aPrediction.predict(x_test)
+apred_y = makearray(apred)
+
+cpred = bPrediction.predict(x_test)
+cpred_y = makearray(cpred)
+
+# print(apred_y)
+# print(cpred_y)
+## print error
+# error = calcError(apred_y, cpred_y)
+# print(error)
 
