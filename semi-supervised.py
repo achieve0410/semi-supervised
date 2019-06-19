@@ -58,9 +58,9 @@ def divideData(trainOrTest):
         random.shuffle(tempList)
         labeledList = tempList[0:int(rowLength*labeled_ratio)]
 
+        data = trainOrTest
         while 1:
-            data = trainOrTest
-            if len(data)<=line_counter: break
+            if(len(data)<=line_counter): break
 
             ## labeled_x, labeled_y
             if(checkLineNum(labeledList, int(rowLength*labeled_ratio), line_counter)):
@@ -75,7 +75,7 @@ def divideData(trainOrTest):
 
             ## unlabeled_x, unlabeled_y
             else:
-                if compo_counter == len(data[0])-1:
+                if(compo_counter == len(data[0])-1):
                     unlabeled_y[unlabeled_counter][0] = int(data[line_counter][compo_counter])
                     unlabeled_counter += 1
                     line_counter += 1
@@ -92,11 +92,11 @@ def divideData(trainOrTest):
         x_test = np.zeros( [rowLength, colLength] )
         y_test = np.zeros( [rowLength, 1] )
 
+        data = trainOrTest
         while 1:
-            data = trainOrTest
-            if len(data)<=line_counter: break
+            if(len(data)<=line_counter): break
 
-            if compo_counter == len(data[0])-1:
+            if(compo_counter == len(data[0])-1):
                 x_test[line_counter][compo_counter] = int(data[line_counter][compo_counter])
                 line_counter += 1
                 compo_counter = 0
@@ -218,19 +218,19 @@ aModel = OLS(new_labeled_y, new_labeled_x)
 aPrediction = aModel.fit()
 # print(aPrediction.summary())
 
-## normalization x
-normalization(x_test)
-
 ## predict the answer using new models
-apred = aPrediction.predict(x_test)
+apred = aPrediction.predict(unlabeled_x)
 apred_y = makearray(apred)
 # print(apred_y)
 
 ## predict the answer using old models
-bpred = nPrediction.predict(x_test)
+bpred = nPrediction.predict(unlabeled_x)
 bpred_y = makearray(bpred)
 # print(bpred_y)
 
 ## print error
-error = calcError(apred_y, bpred_y)
-print(apred_y, bpred_y, error)
+new_error = calcError(unlabeled_y, apred_y)
+old_error = calcError(unlabeled_y, bpred_y)
+
+print(new_error)
+print(old_error)
