@@ -151,6 +151,8 @@ test_data = readCSVfile('modify_test_dataset.csv')
 x_test, y_test = divideData(test_data)
 
 
+#############################################################################################################################################################################
+
 ## output ##
 
 # print(len(labeled_x))         ## 73
@@ -168,41 +170,32 @@ x_test, y_test = divideData(test_data)
 # print(len(y_test))            ## 1459
 # print(len(y_test[0]))         ## 1
 
-
 #############################################################################################################################################################################
 
 
 ## merge dataset in variable x
 new_labeled_x = np.vstack((labeled_x, unlabeled_x))
 
-# print(labeled_x)
-
-## normalization
+## normalization x
 normalization(labeled_x)
 
-# print(labeled_x)
-
-## create and summary model
+## create and summary old model
 nModel = OLS(labeled_y, labeled_x)
 nPrediction = nModel.fit()
 # print(nPrediction.summary())
 
-# print(unlabeled_x)
-
-## normalization
+## normalization x
 normalization(unlabeled_x)
-
-# print(unlabeled_x)
 
 ## predict the answer
 npred = nPrediction.predict(unlabeled_x)
 npred_y = makearray(npred)
 
-# print(npred_y)
-
 ## merge dataset in variable y
 new_labeled_y = np.vstack((labeled_y, npred_y))
 
+
+#############################################################################################################################################################################
 
 ## debug ##
 
@@ -214,24 +207,19 @@ new_labeled_y = np.vstack((labeled_y, npred_y))
 # print(new_labeled_x.shape)      ## 1460, 25
 # print(new_labeled_y.shape)      ## 1460, 1
 
-###########
+#############################################################################################################################################################################
 
-# print(new_labeled_x)
 
-# ## normalization
+## normalization x
 normalization(new_labeled_x)
-
-# print(new_labeled_x)
 
 # ## create and summary new model
 aModel = OLS(new_labeled_y, new_labeled_x)
 aPrediction = aModel.fit()
-# # print(aPrediction.summary())
+# print(aPrediction.summary())
 
-## normalization
+## normalization x
 normalization(x_test)
-
-## predict the answer using two models and compare result
 
 ## predict the answer using new models
 apred = aPrediction.predict(x_test)
@@ -245,7 +233,4 @@ bpred_y = makearray(bpred)
 
 ## print error
 error = calcError(apred_y, bpred_y)
-# print(apred_y)
-# print(bpred_y)
-# print(error)
 print(apred_y, bpred_y, error)
