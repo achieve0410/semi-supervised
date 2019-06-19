@@ -116,18 +116,17 @@ def calcError(groundTruth, predictValue):
     return se/len(groundTruth)
 
 def normalization(data):
+    temp_data = data
     column_counter = 0
 
     while 1:
-        if(column_counter>=len(data[0])): break
+        if(column_counter>=len(temp_data[0])): break
 
-        if (int(data.max(axis=0)[column_counter]) != 0):
-            data[:,column_counter] = data[:,column_counter] / data.max(axis=0)[column_counter]
+        if (int(temp_data.max(axis=0)[column_counter]) != 0):
+            temp_data[:,column_counter] = temp_data[:,column_counter] / temp_data.max(axis=0)[column_counter]
         else:
-            data[:,column_counter] = data[:,column_counter] / 0.001
+            temp_data[:,column_counter] = temp_data[:,column_counter]
         column_counter += 1
-
-    return  data
 
 def makearray(array):
     retArray = np.zeros( [len(array), 1] )
@@ -172,22 +171,37 @@ x_test, y_test = divideData(test_data)
 
 #############################################################################################################################################################################
 
+
+## merge dataset in variable x
+new_labeled_x = np.vstack((labeled_x, unlabeled_x))
+
+# print(labeled_x)
+
 ## normalization
-norm_labeled_x = normalization(labeled_x)
+normalization(labeled_x)
+
+# print(labeled_x)
 
 ## create and summary model
-bModel = OLS(labeled_y, norm_labeled_x)
-bPrediction = bModel.fit()
-# print(bPrediction.summary())
+nModel = OLS(labeled_y, labeled_x)
+nPrediction = nModel.fit()
+# print(nPrediction.summary())
+
+# print(unlabeled_x)
+
+## normalization
+normalization(unlabeled_x)
+
+# print(unlabeled_x)
 
 ## predict the answer
-bpred = bPrediction.predict(unlabeled_x)
-bpred_y = makearray(bpred)
+npred = nPrediction.predict(unlabeled_x)
+npred_y = makearray(npred)
 
-## merge dataset
-new_labeled_x = np.vstack((labeled_x, unlabeled_x))
-new_labeled_y = np.vstack((labeled_y, bpred_y))
+# print(npred_y)
 
+## merge dataset in variable y
+new_labeled_y = np.vstack((labeled_y, npred_y))
 
 
 ## debug ##
@@ -195,32 +209,43 @@ new_labeled_y = np.vstack((labeled_y, bpred_y))
 # print(labeled_x.shape)          ## 73, 25
 # print((unlabeled_x.shape))      ## 1387, 25
 # print((labeled_y.shape))        ## 73, 1
-# print((bpred_y.shape))           ## 1387, 1
+# print((npred_y.shape))           ## 1387, 1
 
 # print(new_labeled_x.shape)      ## 1460, 25
 # print(new_labeled_y.shape)      ## 1460, 1
 
 ###########
 
+# print(new_labeled_x)
+
+# ## normalization
+normalization(new_labeled_x)
+
+# print(new_labeled_x)
+
+# ## create and summary new model
+aModel = OLS(new_labeled_y, new_labeled_x)
+aPrediction = aModel.fit()
+# # print(aPrediction.summary())
 
 ## normalization
-norm_new_labeled_x = normalization(new_labeled_x)
-
-## create and summary new model
-aModel = OLS(new_labeled_y, norm_new_labeled_x)
-aPrediction = aModel.fit()
-# print(aPrediction.summary())
+normalization(x_test)
 
 ## predict the answer using two models and compare result
+
+## predict the answer using new models
 apred = aPrediction.predict(x_test)
 apred_y = makearray(apred)
-
-cpred = bPrediction.predict(x_test)
-cpred_y = makearray(cpred)
-
 # print(apred_y)
-# print(cpred_y)
-## print error
-# error = calcError(apred_y, cpred_y)
-# print(error)
 
+## predict the answer using old models
+bpred = nPrediction.predict(x_test)
+bpred_y = makearray(bpred)
+# print(bpred_y)
+
+## print error
+error = calcError(apred_y, bpred_y)
+# print(apred_y)
+# print(bpred_y)
+# print(error)
+print(apred_y, bpred_y, error)
