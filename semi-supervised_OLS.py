@@ -151,11 +151,7 @@ test_data = readCSVfile('modify_test_dataset.csv')
 x_test, y_test = divideData(test_data)
 
 
-<<<<<<< HEAD:semi-supervised.py
-#############################################################################################################################################################################
-=======
 #############################################################################################
->>>>>>> v0.1.0:semi-supervised_OLS.py
 
 ## output ##
 
@@ -174,22 +170,6 @@ x_test, y_test = divideData(test_data)
 # print(len(y_test))            ## 1459
 # print(len(y_test[0]))         ## 1
 
-<<<<<<< HEAD:semi-supervised.py
-#############################################################################################################################################################################
-
-
-## merge dataset in variable x
-new_labeled_x = np.vstack((labeled_x, unlabeled_x))
-
-## normalization x
-normalization(labeled_x)
-
-## create and summary old model
-nModel = OLS(labeled_y, labeled_x)
-nPrediction = nModel.fit()
-# print(nPrediction.summary())
-
-=======
 #############################################################################################
 
 
@@ -204,7 +184,6 @@ nModel = OLS(labeled_y, labeled_x)
 nPrediction = nModel.fit()
 # print(nPrediction.summary())
 
->>>>>>> v0.1.0:semi-supervised_OLS.py
 ## normalization x
 normalization(unlabeled_x)
 
@@ -216,11 +195,7 @@ npred_y = makearray(npred)
 new_labeled_y = np.vstack((labeled_y, npred_y))
 
 
-<<<<<<< HEAD:semi-supervised.py
-#############################################################################################################################################################################
-=======
 #############################################################################################
->>>>>>> v0.1.0:semi-supervised_OLS.py
 
 ## debug ##
 
@@ -232,11 +207,7 @@ new_labeled_y = np.vstack((labeled_y, npred_y))
 # print(new_labeled_x.shape)      ## 1460, 25
 # print(new_labeled_y.shape)      ## 1460, 1
 
-<<<<<<< HEAD:semi-supervised.py
-#############################################################################################################################################################################
-=======
 #############################################################################################
->>>>>>> v0.1.0:semi-supervised_OLS.py
 
 
 ## normalization x
@@ -247,36 +218,19 @@ aModel = OLS(new_labeled_y, new_labeled_x)
 aPrediction = aModel.fit()
 # print(aPrediction.summary())
 
-<<<<<<< HEAD:semi-supervised.py
-## normalization x
-normalization(x_test)
-
-## predict the answer using new models
-apred = aPrediction.predict(x_test)
-=======
 ## predict the answer using new models
 apred = aPrediction.predict(unlabeled_x)
->>>>>>> v0.1.0:semi-supervised_OLS.py
 apred_y = makearray(apred)
 # print(apred_y)
 
 ## predict the answer using old models
-<<<<<<< HEAD:semi-supervised.py
-bpred = nPrediction.predict(x_test)
-=======
 bpred = nPrediction.predict(unlabeled_x)
->>>>>>> v0.1.0:semi-supervised_OLS.py
 bpred_y = makearray(bpred)
 # print(bpred_y)
 
 ## print error
-<<<<<<< HEAD:semi-supervised.py
-error = calcError(apred_y, bpred_y)
-print(apred_y, bpred_y, error)
-=======
 new_error = calcError(unlabeled_y, apred_y)
 old_error = calcError(unlabeled_y, bpred_y)
 
 print(new_error)
 print(old_error)
->>>>>>> v0.1.0:semi-supervised_OLS.py
