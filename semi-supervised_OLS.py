@@ -58,9 +58,9 @@ def divideData(trainOrTest):
         random.shuffle(tempList)
         labeledList = tempList[0:int(rowLength*labeled_ratio)]
 
+        data = trainOrTest
         while 1:
-            data = trainOrTest
-            if len(data)<=line_counter: break
+            if(len(data)<=line_counter): break
 
             ## labeled_x, labeled_y
             if(checkLineNum(labeledList, int(rowLength*labeled_ratio), line_counter)):
@@ -75,7 +75,7 @@ def divideData(trainOrTest):
 
             ## unlabeled_x, unlabeled_y
             else:
-                if compo_counter == len(data[0])-1:
+                if(compo_counter == len(data[0])-1):
                     unlabeled_y[unlabeled_counter][0] = int(data[line_counter][compo_counter])
                     unlabeled_counter += 1
                     line_counter += 1
@@ -92,11 +92,11 @@ def divideData(trainOrTest):
         x_test = np.zeros( [rowLength, colLength] )
         y_test = np.zeros( [rowLength, 1] )
 
+        data = trainOrTest
         while 1:
-            data = trainOrTest
-            if len(data)<=line_counter: break
+            if(len(data)<=line_counter): break
 
-            if compo_counter == len(data[0])-1:
+            if(compo_counter == len(data[0])-1):
                 x_test[line_counter][compo_counter] = int(data[line_counter][compo_counter])
                 line_counter += 1
                 compo_counter = 0
@@ -151,7 +151,11 @@ test_data = readCSVfile('modify_test_dataset.csv')
 x_test, y_test = divideData(test_data)
 
 
+<<<<<<< HEAD:semi-supervised.py
 #############################################################################################################################################################################
+=======
+#############################################################################################
+>>>>>>> v0.1.0:semi-supervised_OLS.py
 
 ## output ##
 
@@ -170,6 +174,7 @@ x_test, y_test = divideData(test_data)
 # print(len(y_test))            ## 1459
 # print(len(y_test[0]))         ## 1
 
+<<<<<<< HEAD:semi-supervised.py
 #############################################################################################################################################################################
 
 
@@ -184,6 +189,22 @@ nModel = OLS(labeled_y, labeled_x)
 nPrediction = nModel.fit()
 # print(nPrediction.summary())
 
+=======
+#############################################################################################
+
+
+## merge dataset in variable x
+new_labeled_x = np.vstack((labeled_x, unlabeled_x))
+
+## normalization x
+normalization(labeled_x)
+
+## create and summary old model
+nModel = OLS(labeled_y, labeled_x)
+nPrediction = nModel.fit()
+# print(nPrediction.summary())
+
+>>>>>>> v0.1.0:semi-supervised_OLS.py
 ## normalization x
 normalization(unlabeled_x)
 
@@ -195,7 +216,11 @@ npred_y = makearray(npred)
 new_labeled_y = np.vstack((labeled_y, npred_y))
 
 
+<<<<<<< HEAD:semi-supervised.py
 #############################################################################################################################################################################
+=======
+#############################################################################################
+>>>>>>> v0.1.0:semi-supervised_OLS.py
 
 ## debug ##
 
@@ -207,7 +232,11 @@ new_labeled_y = np.vstack((labeled_y, npred_y))
 # print(new_labeled_x.shape)      ## 1460, 25
 # print(new_labeled_y.shape)      ## 1460, 1
 
+<<<<<<< HEAD:semi-supervised.py
 #############################################################################################################################################################################
+=======
+#############################################################################################
+>>>>>>> v0.1.0:semi-supervised_OLS.py
 
 
 ## normalization x
@@ -218,19 +247,36 @@ aModel = OLS(new_labeled_y, new_labeled_x)
 aPrediction = aModel.fit()
 # print(aPrediction.summary())
 
+<<<<<<< HEAD:semi-supervised.py
 ## normalization x
 normalization(x_test)
 
 ## predict the answer using new models
 apred = aPrediction.predict(x_test)
+=======
+## predict the answer using new models
+apred = aPrediction.predict(unlabeled_x)
+>>>>>>> v0.1.0:semi-supervised_OLS.py
 apred_y = makearray(apred)
 # print(apred_y)
 
 ## predict the answer using old models
+<<<<<<< HEAD:semi-supervised.py
 bpred = nPrediction.predict(x_test)
+=======
+bpred = nPrediction.predict(unlabeled_x)
+>>>>>>> v0.1.0:semi-supervised_OLS.py
 bpred_y = makearray(bpred)
 # print(bpred_y)
 
 ## print error
+<<<<<<< HEAD:semi-supervised.py
 error = calcError(apred_y, bpred_y)
 print(apred_y, bpred_y, error)
+=======
+new_error = calcError(unlabeled_y, apred_y)
+old_error = calcError(unlabeled_y, bpred_y)
+
+print(new_error)
+print(old_error)
+>>>>>>> v0.1.0:semi-supervised_OLS.py
